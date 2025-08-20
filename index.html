@@ -40,14 +40,46 @@
     <div class="total fw-bold fs-5 d-flex justify-content-end mb-3" id="mobile-cart-total">
       Total: $ <span>0.00</span>
     </div>
-    <div class="table-btn-grid">
+    <!-- <div class="table-btn-grid">
       <button class="table-btn">1</button>
       <button class="table-btn">2</button>
       <button class="table-btn">3</button>
       <button class="table-btn">4</button>
       <button class="table-btn">5</button>
       <button class="table-btn">6</button>
+    </div> -->
+    <!-- ---table select mobile-- -->
+    <div class="table-select-container mb-3">
+      <label for="mobile-table-select" class="form-label fw-bold">Select Tables:</label>
+      <select id="mobile-table-select" class="form-select">
+        <option value="" disabled selected style="display:none">Select table : </option>
+        <option value="1">Table 1</option>
+        <option value="2">Table 2</option>
+        <option value="3">Table 3</option>
+        <option value="4">Table 4</option>
+        <option value="5">Table 5</option>
+        <option value="6">Table 6</option>
+        <option value="7">Table 7</option>
+        <option value="8">Table 8</option>
+        <option value="9">Table 9</option>
+        <option value="10">Table 10</option>
+      </select>
+      <div id="mobile-selected-tables" class="selected-tables">
+        <span class="no-tables-selected">No tables selected</span>
+      </div>
     </div>
+
+    <!-- waiter selection -->
+    <div class="waiter-select-container mb-3" style="position:relative;">
+      <select id="mobile-waiter-select" class="form-select">
+        <option value="" disabled selected>Select waiter</option>
+        <option value="waiter1">John</option>
+        <option value="waiter2">Alice</option>
+        <option value="waiter3">Ravi</option>
+      </select>
+      <span id="mobile-waiter-confirmed" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); color:green; font-size:1.2rem;">✔</span>
+    </div>
+
     <button class="place-order-btn">Place Order</button>
   </div>
 </div>
@@ -67,13 +99,44 @@
             Total: $ <span>0.00</span>
           </div>
           
-          <div class="table-btn-grid">
+          <!-- <div class="table-btn-grid">
             <button class="table-btn">1</button>
             <button class="table-btn">2</button>
             <button class="table-btn">3</button>
             <button class="table-btn">4</button>
             <button class="table-btn">5</button>
             <button class="table-btn">6</button>
+          </div> -->
+
+          <!-- --select box table-- -->
+           
+          <div class="table-select-container mb-3">
+            <select id="desktop-table-select" class="form-select" >
+              <option value="" disabled selected style="display:none">Select table  </option>
+              <option value="1">Table 1</option>
+              <option value="2">Table 2</option>
+              <option value="3">Table 3</option>
+              <option value="4">Table 4</option>
+              <option value="5">Table 5</option>
+              <option value="6">Table 6</option>
+              <option value="7">Table 7</option>
+              <option value="8">Table 8</option>
+              <option value="9">Table 9</option>
+              <option value="10">Table 10</option>
+            </select>
+            <div id="desktop-selected-tables" class="selected-tables">
+              <span class="no-tables-selected">No tables selected</span>
+            </div>
+          </div>
+          <!-- --waiter selection-- -->
+          <div class="waiter-select-container mb-3">
+            <select id="waiter-select" class="form-select">
+              <option value="" disabled selected style="display:none">Select waiter</option>
+              <option value="waiter1">John</option>
+              <option value="waiter2">Alice</option>
+              <option value="waiter3">Ravi</option>
+            </select>
+            <span id="waiter-confirmed" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); color:green; font-size:1.2rem;">✔</span>
           </div>
           
           <button class="place-order-btn">Place Order</button>
@@ -315,6 +378,26 @@
   </div>
 </div>
 
+<!-- waiter password popup -->
+<div id="password-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center;z-index:10000">
+  <div class="popup-msg-box bg-white p-3 rounded shadow" style="width:300px;">
+    <label for="note-input" class="form-label fw-bold">Enter your Passcode</label>
+    
+    <div class="input-group mb-3">
+      <input type="password" id="password-input" class="form-control" placeholder="enter password">
+      <button class="btn btn-outline-secondary" type="button" id="toggle-password">
+        <i class="fas fa-eye"></i>
+      </button>
+    </div>
+    
+    <div id="password-error" class="text-danger mb-2" style="display:none;">Incorrect password!</div>
+    <div class="d-flex justify-content-end">
+      <button id="password-close" class="btn btn-sm btn-secondary me-2">Cancel</button>
+      <button type="button" id="password-btn" class="btn btn-sm btn-primary">Submit</button>
+    </div>
+  </div>
+</div>
+
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -327,6 +410,10 @@ let selectedPortion = "Full";
 let currentQuantity = 1;
 let isFoodProduct = false;
 let productsInCart = new Set();
+let selectedWaiter = null;
+let mobileSelectedWaiter = null;
+let isWaiterAuthenticated = false;
+let isMobileWaiterAuthenticated = false;
 
 const portionPrices = {
   "Quarter": 0.25,
@@ -371,10 +458,21 @@ function initApp() {
   });
   
   // Table selection
-  document.querySelectorAll(".table-btn").forEach(btn => {
-    btn.addEventListener("click", handleTableSelection);
-  });
+  // document.querySelectorAll(".table-btn").forEach(btn => {
+  //   btn.addEventListener("click", handleTableSelection);
+  // });
   
+  document.getElementById('desktop-table-select').addEventListener('change', handleTableSelect);
+  document.getElementById('mobile-table-select').addEventListener('change', handleTableSelect);
+
+  // waiter selection
+  mobileWaiterSelect.addEventListener('change', handleMobileWaiterSelect);
+    document.getElementById('waiter-select').addEventListener('change', handleWaiterSelect);
+  waiterSelect.value = "";
+  selectedWaiter = null;
+  mobileWaiterSelect.value = "";
+  mobileSelectedWaiter = null;
+
   // Place Order button
   document.querySelectorAll('.place-order-btn').forEach(btn => {
     btn.addEventListener('click', handlePlaceOrder);
@@ -777,30 +875,351 @@ function handleCategoryFilter() {
 }
 
 // Table selection
-function handleTableSelection() {
-  document.querySelectorAll(".table-btn").forEach(b => {
-    b.classList.remove("selected");
-  });
-  this.classList.add("selected");
+// function handleTableSelection() {
+//   document.querySelectorAll(".table-btn").forEach(b => {
+//     b.classList.remove("selected");
+//   });
+//   this.classList.add("selected");
+// }
+
+
+let selectedTables = []; // Array to store selected tables
+
+function handleTableSelect(e) {
+  const selectElement = e.target;
+  const selectedValue = selectElement.value;
+  const isMobile = selectElement.id === 'mobile-table-select';
+  
+  // Ignore placeholder
+  if (!selectedValue) return;
+
+  // Prevent duplicates
+  if (selectedTables.includes(selectedValue)) {
+    selectElement.value = ""; // reset to placeholder
+    return;
+  }
+
+  // Add new table
+  selectedTables.push(selectedValue);
+
+  // Update the other select to match
+  const otherSelect = isMobile ? 
+    document.getElementById('desktop-table-select') : 
+    document.getElementById('mobile-table-select');
+  
+  // Sync the selections
+  updateSelectedTablesDisplay();
+
+  // Reset dropdown back to placeholder
+  selectElement.value = "";
+  otherSelect.value = "";
 }
 
-// Place order
+function updateSelectedTablesDisplay() {
+  const desktopDisplay = document.getElementById("desktop-selected-tables");
+  const mobileDisplay = document.getElementById("mobile-selected-tables");
+
+  desktopDisplay.innerHTML = "";
+  mobileDisplay.innerHTML = "";
+
+  if (selectedTables.length === 0) {
+    desktopDisplay.innerHTML =
+      '<span class="no-tables-selected">No tables selected</span>';
+    mobileDisplay.innerHTML =
+      '<span class="no-tables-selected">No tables selected</span>';
+    return;
+  }
+
+  selectedTables.forEach((table) => {
+    const tagHTML = `Table ${table} <span class="remove" data-table="${table}">×</span>`;
+
+    // Desktop tag
+    const desktopTag = document.createElement("span");
+    desktopTag.className = "table-tag";
+    desktopTag.innerHTML = tagHTML;
+    desktopTag.querySelector(".remove").addEventListener("click", removeTable);
+
+    // Mobile tag
+    const mobileTag = document.createElement("span");
+    mobileTag.className = "table-tag";
+    mobileTag.innerHTML = tagHTML;
+    mobileTag.querySelector(".remove").addEventListener("click", removeTable);
+
+    desktopDisplay.appendChild(desktopTag);
+    mobileDisplay.appendChild(mobileTag);
+  });
+}
+
+function removeTable(e) {
+  const tableToRemove = e.target.getAttribute("data-table");
+  selectedTables = selectedTables.filter((t) => t !== tableToRemove);
+  updateSelectedTablesDisplay();
+}
+
 function handlePlaceOrder() {
-  if (document.querySelectorAll('#cart-items .item').length === 0) {
-    showMessage('Your cart is empty!');
+  if (document.querySelectorAll("#cart-items .item").length === 0) {
+    showMessage("Your cart is empty!");
+    return;
+  }
+  
+  const isMobileView = document.getElementById('mobile-cart').style.left === '0px';
+  const isAuthenticated = isMobileView ? isMobileWaiterAuthenticated : isWaiterAuthenticated;
+  
+  if (!isAuthenticated) {
+    showMessage("Please select and authenticate a waiter first!");
+    return;
+  }
+  
+  if (selectedTables.length === 0) {
+    showMessage("Please select at least one table for your order.");
+    return;
+  }
+  
+  const tableText = selectedTables.length === 1 ? 
+    `Table ${selectedTables[0]}` : 
+    `Tables ${selectedTables.join(", ")}`;
+
+  showMessage(`Order placed successfully for ${tableText}!`);
+
+  // Reset cart + tables (FIXED: Clear both desktop and mobile carts)
+  document.getElementById("cart-items").innerHTML = "";
+  document.getElementById("mobile-cart-content").innerHTML = ""; // Add this line
+  cartMap.clear();
+  productsInCart.clear();
+  
+  selectedTables = [];
+  document.getElementById("desktop-table-select").value = "";
+  document.getElementById("mobile-table-select").value = ""; // Add this line
+  updateSelectedTablesDisplay();
+
+  // Reset waiter authentication
+  waiterSelect.value = "";
+  selectedWaiter = null;
+  confirmedTick.style.display = "none";
+  isWaiterAuthenticated = false;
+  
+  mobileWaiterSelect.value = "";
+  mobileSelectedWaiter = null;
+  mobileConfirmedTick.style.display = "none";
+  isMobileWaiterAuthenticated = false;
+
+  updateTotal();
+  updateCartBadge();
+  updateProductHighlighting();
+}
+
+// waiter selection
+const waiterPasswords = {
+  waiter1: "john123",
+  waiter2: "alice123", 
+  waiter3: "ravi123"
+};
+
+// Get DOM elements
+const waiterSelect = document.getElementById("waiter-select");
+const confirmedTick = document.getElementById("waiter-confirmed");
+const mobileWaiterSelect = document.getElementById("mobile-waiter-select");
+const mobileConfirmedTick = document.getElementById("mobile-waiter-confirmed");
+const popup = document.getElementById("password-popup");
+const passwordInput = document.getElementById("password-input");
+const passwordError = document.getElementById("password-error");
+const passwordCloseBtn = document.getElementById("password-close");
+const passwordSubmitBtn = document.getElementById("password-btn");
+
+
+
+
+// Show popup on waiter change
+waiterSelect.addEventListener("change", () => {
+  selectedWaiter = waiterSelect.value;
+  
+  // Reset popup state
+  passwordInput.value = "";
+  passwordError.style.display = "none";
+  passwordInput.type = "password";
+  
+  // Show the popup
+  popup.style.display = "flex";
+  popup.dataset.source="desktop"
+});
+
+mobileWaiterSelect.addEventListener("change", () => {
+  mobileSelectedWaiter= mobileWaiterSelect.value;
+  
+  // Reset popup state
+  passwordInput.value = "";
+  passwordError.style.display = "none";
+  passwordInput.type = "password";
+  
+  // Show the popup
+  popup.style.display = "flex";
+  popup.dataset.source="mobile"
+});
+
+// Close popup
+passwordCloseBtn.addEventListener("click", function() {
+  const isMobile = popup.dataset.source === 'mobile';
+  
+  if (isMobile) {
+    mobileWaiterSelect.value = "";
+    mobileSelectedWaiter = null;
+    mobileConfirmedTick.style.display = "none";
   } else {
-    showMessage('Order placed successfully!');
+    waiterSelect.value = "";
+    selectedWaiter = null;
+    confirmedTick.style.display = "none";
+  }
+  
+  popup.style.display = "none";
+  delete popup.dataset.source;
+});
+// Submit password
+passwordSubmitBtn.addEventListener("click", () => {
+  authenticateWaiter();
+});
+
+// Allow Enter key to submit
+passwordInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    authenticateWaiter();
+  }
+});
+
+
+
+// Authentication function
+
+function authenticateWaiter() {
+  const isMobile = popup.dataset.source === 'mobile';
+  const currentWaiter = isMobile ? mobileSelectedWaiter : selectedWaiter;
+  const currentTick = isMobile ? mobileConfirmedTick : confirmedTick;
+  
+  // Validate that a waiter is selected
+  if (!currentWaiter) {
+    passwordError.textContent = "Please select a waiter first";
+    passwordError.style.display = "block";
+    return;
+  }
+  
+  const enteredPassword = passwordInput.value.trim();
+  
+  // Validate that password is entered
+  if (!enteredPassword) {
+    passwordError.textContent = "Please enter a password";
+    passwordError.style.display = "block";
+    return;
+  }
+  
+  // Check if password matches
+  if (enteredPassword === waiterPasswords[currentWaiter]) {
+    // Success - hide popup and show confirmation tick
+    currentTick.style.display = "inline";
+    popup.style.display = "none";
+    passwordError.style.display = "none";
     
-    // Clear cart after order placement
-    document.getElementById('cart-items').innerHTML = '';
-    document.getElementById('mobile-cart-content').innerHTML = '';
-    cartMap.clear();
-    productsInCart.clear();
-    updateTotal();
-    updateCartBadge();
-    updateProductHighlighting();
+    if (isMobile) {
+      isMobileWaiterAuthenticated = true;
+    } else {
+      isWaiterAuthenticated = true;
+    }
+  } else {
+    // Failed - show error
+    passwordError.textContent = "Incorrect password!";
+    passwordError.style.display = "block";
+    
+    // Reset the selection
+    // if (isMobile) {
+    //   mobileWaiterSelect.value = "";
+    //   mobileSelectedWaiter = null;
+    // } else {
+    //   waiterSelect.value = "";
+    //   selectedWaiter = null;
+    // }
+    
+    // Clear the input and focus on it
+    passwordInput.value = "";
+    passwordInput.focus();
   }
 }
+// Get the toggle button
+const togglePasswordBtn = document.getElementById("toggle-password");
+
+// Toggle password 
+let isPasswordVisible = false;
+togglePasswordBtn.addEventListener("click", function() {
+  isPasswordVisible = !isPasswordVisible;
+  passwordInput.type = isPasswordVisible ? "text" : "password";
+  togglePasswordBtn.innerHTML = isPasswordVisible ? 
+    '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+});
+
+// Reset password visibility when popup opens
+waiterSelect.addEventListener("change", () => {
+  // ... existing code ...
+  
+  // Reset password visibility
+  passwordInput.type = "password";
+  if (togglePasswordBtn) {
+    togglePasswordBtn.innerHTML = '<i class="fas fa-eye"></i>';
+    isPasswordVisible = false;
+  }
+});
+
+function handleWaiterSelect(e) {
+  // Reset authentication if changing waiter
+  if (selectedWaiter && e.target.value !== selectedWaiter) {
+    confirmedTick.style.display = "none";
+    isWaiterAuthenticated = false;
+  }
+  
+  selectedWaiter = e.target.value;
+  
+  // Reset popup state
+  passwordInput.value = "";
+  passwordError.style.display = "none";
+  passwordInput.type = "password";
+  
+  // Show the popup
+  popup.style.display = "flex";
+  popup.dataset.source = 'desktop'; 
+}
+function handleMobileWaiterSelect(e) {
+  if (e.target.value === "") {
+    mobileConfirmedTick.style.display = "none";
+    mobileSelectedWaiter = null;
+    isMobileWaiterAuthenticated = false;
+    return;
+  }
+  
+  mobileSelectedWaiter = e.target.value;
+  
+  // Reset popup state
+  passwordInput.value = "";
+  passwordError.style.display = "none";
+  passwordInput.type = "password";
+  
+  // Show the popup for mobile authentication
+  popup.style.display = "flex";
+  popup.dataset.source = 'mobile';
+}
+
+// // Place order
+// function handlePlaceOrder() {
+//   if (document.querySelectorAll('#cart-items .item').length === 0) {
+//     showMessage('Your cart is empty!');
+//   } else {
+//     showMessage('Order placed successfully!');
+    
+//     // Clear cart after order placement
+//     document.getElementById('cart-items').innerHTML = '';
+//     document.getElementById('mobile-cart-content').innerHTML = '';
+//     cartMap.clear();
+//     productsInCart.clear();
+//     updateTotal();
+//     updateCartBadge();
+//     updateProductHighlighting();
+//   }
+// }
 
 // Search functionality
 function handleSearch() {
@@ -815,6 +1234,8 @@ function handleSearch() {
     }
   });
 }
+
+
 
 // Update product highlighting
 function updateProductHighlighting() {
