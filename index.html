@@ -71,13 +71,13 @@
 
     <!-- waiter selection -->
     <div class="waiter-select-container mb-3" style="position:relative;">
-      <select id="mobile-waiter-select" class="form-select">
+      <select id="mobile-waiter-select" class="form-select ">
         <option value="" disabled selected>Select waiter</option>
         <option value="waiter1">John</option>
         <option value="waiter2">Alice</option>
         <option value="waiter3">Ravi</option>
       </select>
-      <span id="mobile-waiter-confirmed" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); color:green; font-size:1.2rem;">✔</span>
+      <span id="mobile-waiter-confirmed" style="display:none; position:absolute; left:2px; top:50%; transform:translateY(-50%); color:green; font-size:1.2rem;">✔</span>
     </div>
 
     <button class="place-order-btn">Place Order</button>
@@ -129,14 +129,14 @@
             </div>
           </div>
           <!-- --waiter selection-- -->
-          <div class="waiter-select-container mb-3">
+          <div class="waiter-select-container position-relative mb-3">
             <select id="waiter-select" class="form-select">
               <option value="" disabled selected style="display:none">Select waiter</option>
               <option value="waiter1">John</option>
               <option value="waiter2">Alice</option>
               <option value="waiter3">Ravi</option>
             </select>
-            <span id="waiter-confirmed" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); color:green; font-size:1.2rem;">✔</span>
+            <span id="waiter-confirmed" style="display:none; position:absolute; left:2px; top:50%; transform:translateY(-50%); color:green; font-size:1.2rem;">✔</span>
           </div>
           
           <button class="place-order-btn">Place Order</button>
@@ -1143,7 +1143,7 @@ function authenticateWaiter() {
 }
 // Get the toggle button
 const togglePasswordBtn = document.getElementById("toggle-password");
-
+togglePasswordBtn.innerHTML= '<i class="fas fa-eye"></i>';
 // Toggle password 
 let isPasswordVisible = false;
 togglePasswordBtn.addEventListener("click", function() {

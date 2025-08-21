@@ -322,6 +322,7 @@
     .form-select option[disabled][selected] {
       color: #6c757d;
       font-style: italic;
+      /* padding-left: 10px; */
     }
     
     
@@ -355,6 +356,10 @@
     .waiter-select-container .form-select {
       font-size: 0.95rem;
       padding: 10px;
+      padding-left:20px;
+    }
+    #mobile-waiter-select option{
+      margin-left:10px;
     }
     
     .waiter-select-container label {
